@@ -3,8 +3,8 @@
 RideshareSimApp.controller('MainCtrl', function($scope) {
 
   var mapOptions = {
-          center: new google.maps.LatLng(37.66, -122.5),
-          zoom: 8,
+          center: new google.maps.LatLng(37.76, -122.435),
+          zoom: 13,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
   $scope.map = new google.maps.Map(document.getElementById("google-maps-canvas"),
