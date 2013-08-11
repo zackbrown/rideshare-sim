@@ -1,0 +1,5 @@
+C:\CODE\sandbox\rideshare\rideshare\bin\rideshare.dll
+C:\CODE\sandbox\rideshare\rideshare\bin\rideshare.pdb
+C:\CODE\sandbox\rideshare\rideshare\obj\Debug\rideshare.csprojResolveAssemblyReference.cache
+C:\CODE\sandbox\rideshare\rideshare\obj\Debug\rideshare.dll
+C:\CODE\sandbox\rideshare\rideshare\obj\Debug\rideshare.pdb

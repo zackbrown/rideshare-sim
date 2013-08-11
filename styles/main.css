@@ -1,0 +1,30 @@
+html, body
+{
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#google-maps-canvas img { max-width: none; }
+
+.main
+{
+  height: 100%;
+  float: left;
+  width: 75%;
+  margin: 0;
+}
+
+.options
+{
+  margin: 0;
+  height: 100%;
+  float: left;
+  width: 25%;
+}
+
+.options-content
+{
+  margin: 25pt;
+}
