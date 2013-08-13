@@ -7,6 +7,7 @@ function Car($scope, initialPosition, maxPassengers){
   self.$scope = $scope;
   self.position = initialPosition;
   self.route = null;
+  self.routePercentComplete = 0;
   self.maxPassengers = maxPassengers;
   self.passengers = 0;
 
@@ -24,6 +25,9 @@ Car.prototype.setPosition = function(position){
 
 Car.prototype.tick = function(){
   //update position along route
+  if(this.route){
+
+  }//else just wait (TODO:  move the car toward an area with higher density fares when it has no current fare)
 }
 
 Car.prototype.roomForPassengers = function(){
@@ -51,4 +55,8 @@ Car.prototype.setPassengers = function(amount){
 Car.prototype.prepareForRemoval = function(){
   this.marker.setMap(null);
   delete this.marker;
+  if(this.route){
+    this.route.setMap(null);
+    delete this.route;
+  }
 }

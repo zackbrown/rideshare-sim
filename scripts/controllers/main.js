@@ -1,6 +1,13 @@
 'use strict';
 
-
+//TODO:
+// Tick cars along routes
+// Assign cars simple (1-passenger) routes
+// Support compound (multi-passenger) routes
+// Determine which car is best suited to pick up new passengers
+// Create controls for numbers of cars, frequency of passenger requests, tick speed
+// Parameterize max passengers to compare
+// Track passenger wait times
 
 RideshareSimApp.controller('MainCtrl', function($scope, $timeout) {
 
