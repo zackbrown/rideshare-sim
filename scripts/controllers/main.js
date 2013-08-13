@@ -4,6 +4,7 @@
 // Tick cars along routes
 // Assign cars simple (1-passenger) routes
 // Support compound (multi-passenger) routes
+//   Perhaps:  when a new passenger requests a ride, select from all cars that have room for additional passengers the car that has (an unvisited waypoint or its current location) nearest the passenger.  If all existing points are beyond some acceptable threshold, dispatch a new car.
 // Determine which car is best suited to pick up new passengers
 // Create controls for numbers of cars, frequency of passenger requests, tick speed
 // Parameterize max passengers to compare

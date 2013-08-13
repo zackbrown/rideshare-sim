@@ -10,6 +10,7 @@ function Car($scope, initialPosition, maxPassengers){
   self.routePercentComplete = 0;
   self.maxPassengers = maxPassengers;
   self.passengers = 0;
+  self.state = Car.STATE.SEEKING_FARE;
 
   self.marker = new google.maps.Marker({
     position: initialPosition,
@@ -17,6 +18,12 @@ function Car($scope, initialPosition, maxPassengers){
     icon: self.ICON_URL
   })
 }
+
+Car.STATE = {
+  SEEKING_FARE: 'SEEKING_RIDE',
+  EN_ROUTE_TO_FARE: 'EN_ROUTE_TO_FARE',
+  WITH_FARE: 'WITH_FARE'
+};
 
 Car.prototype.setPosition = function(position){
   this.position = position;

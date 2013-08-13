@@ -7,6 +7,7 @@ function Passenger($scope, initialPosition, destination){
   self.id = UUID.generate();
   self.position = initialPosition;
   self.destination = destination;
+  self.carId = null;
 
   self.marker = new google.maps.Marker({
     position: initialPosition,
@@ -14,7 +15,7 @@ function Passenger($scope, initialPosition, destination){
     //icon: self.ICON_URL
   })
 
-  self.currentState = Passenger.STATE.SEEKING_RIDE;
+  self.state = Passenger.STATE.SEEKING_RIDE;
 }
 
 Passenger.STATE = {
