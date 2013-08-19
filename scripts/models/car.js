@@ -1,24 +1,28 @@
-function Car($scope, initialPosition, maxPassengers){
+function Car($scope, geo, initialPosition, maxPassengers){
   var self = this;
 
   self.ICON_URL = 'img/black-car-front.png';
   self.SELECTED_ICON_URL = 'img/pink-car-front.png';
 
   self.id = UUID.generate();
-  this  .$scope = $scope;
+  self.$scope = $scope;
+  self.geo = geo;
   self.position = initialPosition;
   self.route = null;
   self.routePercentComplete = 0;
   self.maxPassengers = maxPassengers;
-  self.passengers = 0;
+  self.passengers = [];
   self.selected = false;
   self.state = Car.STATE.SEEKING_FARE;
+  self.markedForDeletion = false;
 
   self.marker = new google.maps.Marker({
     position: initialPosition,
     map: $scope.map,
     icon: self.ICON_URL
   })
+
+  this.directionsDisplay = new google.maps.DirectionsRenderer();
 
   google.maps.event.addListener(self.marker, 'click', function(){
     self.$scope.selectCar(self);
@@ -39,10 +43,19 @@ Car.prototype.setPosition = function(position){
 Car.prototype.setSelect = function(selected){
   if(selected){
     this.marker.setIcon(this.SELECTED_ICON_URL);
+    if(this.route){
+      this.directionsDisplay.setMap(this.$scope.map);
+      this.directionsDisplay.setDirections(this.route);
+    }
   }else{
     this.marker.setIcon(this.ICON_URL);
+    this.directionsDisplay.setMap(null);
   }
 }
+
+Car.prototype.available = function(){
+  return this.passengers.length < this.maxPassengers && !this.markedForDeletion
+};
 
 Car.prototype.tick = function(){
   //update position along route
@@ -51,26 +64,34 @@ Car.prototype.tick = function(){
   }//else just wait (TODO:  move the car toward an area with higher density fares when it has no current fare)
 }
 
-Car.prototype.roomForPassengers = function(){
-  return this.passengers < this.maxPassengers;
+Car.prototype.addPassenger = function(passenger){
+  this.passengers.push(passenger);
+  this.calculateRoute();
 }
 
-Car.prototype.addPassengers = function(amount){
-  this.setPassengers(amount + this.passengers);
-}
+Car.prototype.stops = function(){
+  return _.map(this.passengers, function(passenger){
+    return passenger.destination;
+  });
+};
 
-Car.prototype.removePassengers = function(amount){
-  this.setPassengers(this.passengers - amount);
-}
+Car.prototype.calculateRoute = function(){
+  console.log('current position:', this.position);
+  console.log('stops', this.stops());
+  var closureCar = this;
+  this.geo.getDirections(this.position, this.stops(), function(data){
+    closureCar.setRoute(data);
+  });
+};
 
-Car.prototype.setPassengers = function(amount){
-  if(amount < 0)
-    throw 'cannot carry a negative number of passengers';
+Car.prototype.setRoute = function(route){
+  this.route = route;
+  console.log('route', route);
+  console.log('car for that route', this);
+};
 
-  if(amount > this.maxPassengers)
-    throw 'cannot carry additional passengers; maximum amount reached';
-
-  this.passengers = amount;
+Car.prototype.removePassenger = function(passenger){
+  throw 'not implemented: car.removePassenger()';
 }
 
 Car.prototype.prepareForRemoval = function(){

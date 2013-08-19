@@ -61,18 +61,47 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
     //create a car object complete with marker
     //give the car an initial position
     //add car to list of cars
-    var newCar = new Car($scope, geo.getCarStartingPosition(), config.MAX_PASSENGERS);
-
+    var newCar = new Car($scope, geo, geo.getCarStartingPosition(), config.MAX_PASSENGERS);
     $scope.cars.push(newCar);
   };
 
   $scope.addPassenger = function(){
     var newPassenger = new Passenger($scope, geo.getPassengerStartingPosition(), geo.getPassengerDestination());
-
     $scope.passengers.push(newPassenger);
+
+    $scope.assignRideToPassenger(newPassenger);
   };
 
   $scope.removeCar = function(car){
+
+  };
+
+  $scope.assignRideToPassenger = function(passenger){
+    //find nearest waypoint or car position for all cars with available seats
+    var availableCars = _.filter($scope.cars, function(car){
+      return car.available();
+    });
+
+    var waypoints = _.flatten(_.map(availableCars, function(car){
+      return _.union([{position: car.position, car: car}], _.map(car.stops, function(stop) { return { position: stop, car: car } }));
+    })); //array of (all waypoints | current position) in form {position: latlng, car: pointer}
+    console.log('waypoints', waypoints);
+
+    var selectedCar = _.min(waypoints, function(waypoint){
+      //TODO:  use something smarter than euclidean distance
+      //TODO:  prioritize a car's current position over its waypoints (probably by weighting the distance by some factor)
+      return geo.euclideanDistance(passenger.position, waypoint.position);
+    }).car;
+
+    console.log('selectedCar', selectedCar);
+    window.car = selectedCar;
+
+    //TODO:  Handle case where all cars are full!
+    if(!selectedCar)
+      throw 'unimplemented:  handle case when no cars are available';
+
+    passenger.setCar(selectedCar);
+    selectedCar.addPassenger(passenger);
 
   };
 

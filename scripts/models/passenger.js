@@ -8,7 +8,7 @@ function Passenger($scope, initialPosition, destination){
   self.id = UUID.generate();
   self.position = initialPosition;
   self.destination = destination;
-  self.carId = null;
+  self.car = null;
 
   self.marker = new google.maps.Marker({
     position: initialPosition,
@@ -29,15 +29,19 @@ Passenger.STATE = {
   DROPPED_OFF: 'DROPPED_OFF'
 };
 
+Passenger.prototype.setCar = function(car){
+  this.car = car;
+};
+
 Passenger.prototype.setSelect = function(selected){
   if(selected){
     this.marker.setIcon(this.SELECTED_ICON_URL);
   }else{
     this.marker.setIcon(this.ICON_URL);
   }
-}
+};
 
 Passenger.prototype.tick = function(){
   //update position along route
-}
+};
 
