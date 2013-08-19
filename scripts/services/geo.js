@@ -8,9 +8,10 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
   var DIRECTIONS_URL = 'http://maps.googleapis.com/maps/api/directions/json?origin={{ORIGIN}}&waypoints={{WAYPOINTS}}&sensor=false'; //&destination=
 
 
+  var directionsService = new google.maps.DirectionsService();
   var self = {
     getDirections: function(start, destinations, successCallback, errorCallback){
-      var url = DIRECTIONS_URL.replace('{{ORIGIN}}', util.latLngString(start));
+      /*var url = DIRECTIONS_URL.replace('{{ORIGIN}}', util.latLngString(start));
       var waypointString = ''
       for(var i = 0; i < destinations.length; i++)
         waypointString += util.latLngString(destinations[i]) + '|'
@@ -22,6 +23,22 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
         .error(errorCallback || function(data){
           alert('Google Directions error: ' + data);
         })
+
+    */
+    var request = {
+      origin:start,
+      waypoints: destinations,
+      destination: destinations[0],
+      travelMode: google.maps.TravelMode.DRIVING
+    };
+    directionsService.route(request, function(result, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        successCallback(result);
+      }else{
+        console.warn('Google Directions Error! ' + status, result);
+      }
+    });
+
     },
 
     getCarStartingPosition: function(){

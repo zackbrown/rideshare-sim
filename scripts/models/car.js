@@ -22,7 +22,14 @@ function Car($scope, geo, initialPosition, maxPassengers){
     icon: self.ICON_URL
   })
 
-  this.directionsDisplay = new google.maps.DirectionsRenderer();
+  self.directionsOptions = {
+    preserveViewport: true,
+    draggable: false,
+    suppressMarkers: true,
+    suppressInfoWindows: true
+  }
+
+  self.directionsDisplay = new google.maps.DirectionsRenderer(self.directionsOptions);
 
   google.maps.event.addListener(self.marker, 'click', function(){
     self.$scope.selectCar(self);
@@ -44,12 +51,11 @@ Car.prototype.setSelect = function(selected){
   if(selected){
     this.marker.setIcon(this.SELECTED_ICON_URL);
     if(this.route){
-      this.directionsDisplay.setMap(this.$scope.map);
-      this.directionsDisplay.setDirections(this.route);
+      this.directionsDisplay.setOptions(_.extend(this.directionsOptions, {map: this.$scope.map, directions: this.route}));
     }
   }else{
     this.marker.setIcon(this.ICON_URL);
-    this.directionsDisplay.setMap(null);
+    this.directionsDisplay.setOptions(this.directionsOptions);
   }
 }
 
