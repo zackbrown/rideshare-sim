@@ -10,29 +10,66 @@
 // Parameterize max passengers to compare
 // Track passenger wait times
 
-RideshareSimApp.controller('MainCtrl', function($scope, $timeout) {
+RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, util) {
+
+  //$scope.googleMapsAPIKey = config.googleMapsAPIKey;
 
   $scope.initialize = function(){
     var mapOptions = {
-            center: new google.maps.LatLng(37.76, -122.435),
-            zoom: 13,
-            minZoom: 13,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
+      center: new google.maps.LatLng(37.76, -122.435),
+      zoom: 13,
+      minZoom: 13,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
     };
-
     $scope.map = new google.maps.Map(document.getElementById("google-maps-canvas"), mapOptions);
-
     google.maps.visualRefresh=true;
 
-    $scope.cars = [new Car($scope, new google.maps.LatLng(37.76, -122.435), 3)];
+    $scope.counter = 0;
 
-    $scope.passengers = [new Passenger($scope, new google.maps.LatLng(37.765, -122.44), null)];
+    //util.enableMapDebugMode($scope.map);
+
+    $scope.cars = [];
+    $scope.passengers = [];
+
+    for(var i = 0; i < config.STARTING_CARS; i++)
+      $scope.addCar();
+
+    for(var i = 0; i < config.STARTING_PASSENGERS; i++)
+      $scope.addPassenger();
   }
+
+  $scope.selectedCar = null;
+  $scope.selectCar = function(car){
+    if($scope.selectedCar != null)
+      $scope.selectedCar.setSelect(false);
+    $scope.selectedCar = car;
+    car.setSelect(true);
+  }
+
+  $scope.selectedPassengers = [];
+  $scope.selectPassengers = function(passengers){
+    if($scope.selectedPassengers != null)
+      for(var i = 0; i < $scope.selectedPassengers.length; i++)
+        $scope.selectedPassengers[i].setSelect(false);
+
+    $scope.selectedPassengers = passengers;
+    for(var i = 0; i < passengers.length; i++)
+      passengers[i].setSelect(true);
+  };
 
   $scope.addCar = function(){
     //create a car object complete with marker
     //give the car an initial position
     //add car to list of cars
+    var newCar = new Car($scope, geo.getCarStartingPosition(), config.MAX_PASSENGERS);
+
+    $scope.cars.push(newCar);
+  };
+
+  $scope.addPassenger = function(){
+    var newPassenger = new Passenger($scope, geo.getPassengerStartingPosition(), geo.getPassengerDestination());
+
+    $scope.passengers.push(newPassenger);
   };
 
   $scope.removeCar = function(car){

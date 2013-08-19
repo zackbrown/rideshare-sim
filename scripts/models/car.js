@@ -2,14 +2,16 @@ function Car($scope, initialPosition, maxPassengers){
   var self = this;
 
   self.ICON_URL = 'img/black-car-front.png';
+  self.SELECTED_ICON_URL = 'img/pink-car-front.png';
 
   self.id = UUID.generate();
-  self.$scope = $scope;
+  this  .$scope = $scope;
   self.position = initialPosition;
   self.route = null;
   self.routePercentComplete = 0;
   self.maxPassengers = maxPassengers;
   self.passengers = 0;
+  self.selected = false;
   self.state = Car.STATE.SEEKING_FARE;
 
   self.marker = new google.maps.Marker({
@@ -17,10 +19,14 @@ function Car($scope, initialPosition, maxPassengers){
     map: $scope.map,
     icon: self.ICON_URL
   })
+
+  google.maps.event.addListener(self.marker, 'click', function(){
+    self.$scope.selectCar(self);
+  });
 }
 
 Car.STATE = {
-  SEEKING_FARE: 'SEEKING_RIDE',
+  SEEKING_FARE: 'SEEKING_FARE',
   EN_ROUTE_TO_FARE: 'EN_ROUTE_TO_FARE',
   WITH_FARE: 'WITH_FARE'
 };
@@ -28,6 +34,14 @@ Car.STATE = {
 Car.prototype.setPosition = function(position){
   this.position = position;
   this.marker.setPosition(position);
+}
+
+Car.prototype.setSelect = function(selected){
+  if(selected){
+    this.marker.setIcon(this.SELECTED_ICON_URL);
+  }else{
+    this.marker.setIcon(this.ICON_URL);
+  }
 }
 
 Car.prototype.tick = function(){

@@ -12,16 +12,19 @@ html, body
 {
   height: 100%;
   float: left;
-  width: 75%;
+  width: 100%;
   margin: 0;
 }
 
 .options
 {
-  margin: 0;
-  height: 100%;
-  float: left;
-  width: 25%;
+  position:absolute;
+  left: 15pt;
+  bottom: 15pt;
+  width: 250pt;
+  height: 50%;
+  border-radius: 5pt;
+  background-color: rgba(255, 255, 255, .75);
 }
 
 .options-content

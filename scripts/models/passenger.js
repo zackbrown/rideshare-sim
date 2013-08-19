@@ -1,7 +1,8 @@
 function Passenger($scope, initialPosition, destination){
   var self = this;
 
-  //self.ICON_URL = 'img/yellow-car-top.png';
+  self.ICON_URL = 'img/passenger-black.png';
+  self.SELECTED_ICON_URL = 'img/passenger-pink.png';
 
   self.$scope = $scope;
   self.id = UUID.generate();
@@ -11,18 +12,30 @@ function Passenger($scope, initialPosition, destination){
 
   self.marker = new google.maps.Marker({
     position: initialPosition,
-    map: $scope.map
-    //icon: self.ICON_URL
+    map: $scope.map,
+    icon: self.ICON_URL
   })
 
-  self.state = Passenger.STATE.SEEKING_RIDE;
+  google.maps.event.addListener(self.marker, 'click', function(){
+    //click behavior here
+  });
+
+  self.state = Passenger.STATE.AWAITING_RIDE;
 }
 
 Passenger.STATE = {
-  SEEKING_RIDE: 'SEEKING_RIDE',
+  AWAITING_RIDE: 'AWAITING_RIDE',
   IN_CAR: 'IN_CAR',
   DROPPED_OFF: 'DROPPED_OFF'
 };
+
+Passenger.prototype.setSelect = function(selected){
+  if(selected){
+    this.marker.setIcon(this.SELECTED_ICON_URL);
+  }else{
+    this.marker.setIcon(this.ICON_URL);
+  }
+}
 
 Passenger.prototype.tick = function(){
   //update position along route
