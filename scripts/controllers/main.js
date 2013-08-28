@@ -3,8 +3,8 @@
 //TODO:
 // Tick cars along routes
 // Assign cars simple (1-passenger) routes
+// Create a queue of failed directions requests; retry queue ad nauseum
 // Support compound (multi-passenger) routes
-//   Perhaps:  when a new passenger requests a ride, select from all cars that have room for additional passengers the car that has (an unvisited waypoint or its current location) nearest the passenger.  If all existing points are beyond some acceptable threshold, dispatch a new car.
 // Determine which car is best suited to pick up new passengers
 // Create controls for numbers of cars, frequency of passenger requests, tick speed
 // Parameterize max passengers to compare
@@ -46,15 +46,25 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
     car.setSelect(true);
   }
 
+  $scope.selectPassenger = function(passenger){
+    $scope.deselectPassengers();
+    $scope.selectedPassengers = [passenger];
+    passenger.setSelect(true);
+  };
+
   $scope.selectedPassengers = [];
   $scope.selectPassengers = function(passengers){
-    if($scope.selectedPassengers != null)
-      for(var i = 0; i < $scope.selectedPassengers.length; i++)
-        $scope.selectedPassengers[i].setSelect(false);
+    $scope.deselectPassengers();
 
     $scope.selectedPassengers = passengers;
     for(var i = 0; i < passengers.length; i++)
       passengers[i].setSelect(true);
+  };
+
+  $scope.deselectPassengers = function(){
+    if($scope.selectedPassengers != null)
+      for(var i = 0; i < $scope.selectedPassengers.length; i++)
+        $scope.selectedPassengers[i].setSelect(false);
   };
 
   $scope.addCar = function(){
@@ -85,7 +95,6 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
     var waypoints = _.flatten(_.map(availableCars, function(car){
       return _.union([{position: car.position, car: car}], _.map(car.stops, function(stop) { return { position: stop, car: car } }));
     })); //array of (all waypoints | current position) in form {position: latlng, car: pointer}
-    console.log('waypoints', waypoints);
 
     var selectedCar = _.min(waypoints, function(waypoint){
       //TODO:  use something smarter than euclidean distance
@@ -93,7 +102,6 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
       return geo.euclideanDistance(passenger.position, waypoint.position);
     }).car;
 
-    console.log('selectedCar', selectedCar);
     window.car = selectedCar;
 
     //TODO:  Handle case where all cars are full!
