@@ -19,13 +19,13 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
           stopover: false
         });
       }
-      console.log('waypoints for directions', waypoints);
 
       var request = {
         origin:start,
         waypoints: waypoints,
         destination: destinations[0],
-        travelMode: google.maps.TravelMode.DRIVING
+        travelMode: google.maps.TravelMode.DRIVING,
+        optimizeWaypoints: true
       };
       directionsService.route(request, function(result, status) {
         if (status == google.maps.DirectionsStatus.OK) {

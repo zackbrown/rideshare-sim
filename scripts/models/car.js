@@ -55,7 +55,7 @@ Car.prototype.setSelect = function(selected){
     }
   }else{
     this.marker.setIcon(this.ICON_URL);
-    this.directionsDisplay.setOptions(this.directionsOptions);
+    this.directionsDisplay.setOptions(_.extend(this.directionsOptions, {map: null}));
   }
 }
 
