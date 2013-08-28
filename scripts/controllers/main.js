@@ -3,9 +3,7 @@
 //TODO:
 // Tick cars along routes
 // Assign cars simple (1-passenger) routes
-// Create a queue of failed directions requests; retry queue ad nauseum
 // Support compound (multi-passenger) routes
-// Determine which car is best suited to pick up new passengers
 // Create controls for numbers of cars, frequency of passenger requests, tick speed
 // Parameterize max passengers to compare
 // Track passenger wait times

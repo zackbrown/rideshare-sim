@@ -33,7 +33,7 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
         if (status == google.maps.DirectionsStatus.OK) {
           successCallback(result);
         }else{
-          console.warn('Google Directions Error! ' + status, result);
+          console.warn('Google Directions Error! Will retry' + status, result);
           retryQueue.push({request: request, successCallback: successCallback});
         }
       });
