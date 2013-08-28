@@ -9,6 +9,8 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
 
 
   var directionsService = new google.maps.DirectionsService();
+  var retryQueue = [];
+
   var self = {
     getDirections: function(start, destinations, successCallback, errorCallback){
 
@@ -32,9 +34,23 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
           successCallback(result);
         }else{
           console.warn('Google Directions Error! ' + status, result);
+          retryQueue.push({request: request, successCallback: successCallback});
         }
       });
+    },
 
+    retryDirections: function(){
+      for(var i = 0; i < retryQueue.length; i++){
+        directionsService.route(requestQueue[i].request, function(result, status) {
+          if (status == google.maps.DirectionsStatus.OK) {
+            requestQueue[i].successCallback(result);
+            requestQueue[i] = null;
+          }else{
+            console.warn('Google Directions Retry Error -- Will continue to retry' + status, result);
+          }
+        });
+      }
+      retryQueue = _.compact(retryQueue); //remove requests once they've nulled themselves out
     },
 
     getCarStartingPosition: function(){
@@ -70,5 +86,7 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
       return d;
     }
   };
+
+  setInterval(self.retryDirections, 250);
   return self;
 }]);
