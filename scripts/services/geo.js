@@ -11,33 +11,29 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
   var directionsService = new google.maps.DirectionsService();
   var self = {
     getDirections: function(start, destinations, successCallback, errorCallback){
-      /*var url = DIRECTIONS_URL.replace('{{ORIGIN}}', util.latLngString(start));
-      var waypointString = ''
-      for(var i = 0; i < destinations.length; i++)
-        waypointString += util.latLngString(destinations[i]) + '|'
 
-      url = url.replace('{{WAYPOINTS}}', waypointString);
-
-      $http({method: 'GET', url: url})
-        .success(successCallback)
-        .error(errorCallback || function(data){
-          alert('Google Directions error: ' + data);
-        })
-
-    */
-    var request = {
-      origin:start,
-      waypoints: destinations,
-      destination: destinations[0],
-      travelMode: google.maps.TravelMode.DRIVING
-    };
-    directionsService.route(request, function(result, status) {
-      if (status == google.maps.DirectionsStatus.OK) {
-        successCallback(result);
-      }else{
-        console.warn('Google Directions Error! ' + status, result);
+      var waypoints = []
+      for(var i = 0; i < destinations.length; i++){
+        waypoints.push({ //new google.maps.DirectionsWaypoint
+          location: destinations[i],
+          stopover: false
+        });
       }
-    });
+      console.log('waypoints for directions', waypoints);
+
+      var request = {
+        origin:start,
+        waypoints: waypoints,
+        destination: destinations[0],
+        travelMode: google.maps.TravelMode.DRIVING
+      };
+      directionsService.route(request, function(result, status) {
+        if (status == google.maps.DirectionsStatus.OK) {
+          successCallback(result);
+        }else{
+          console.warn('Google Directions Error! ' + status, result);
+        }
+      });
 
     },
 
