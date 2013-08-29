@@ -9,7 +9,9 @@ function Car($scope, geo, initialPosition, maxPassengers){
   self.geo = geo;
   self.position = initialPosition;
   self.route = null;
-  self.routePercentComplete = 0;
+  self.points = null;
+  self.routeDuration = 0;
+  self.positionAlongRoute = 0;
   self.maxPassengers = maxPassengers;
   self.passengers = [];
   self.selected = false;
@@ -70,6 +72,15 @@ Car.prototype.available = function(){
 Car.prototype.tick = function(){
   //update position along route
   if(this.route){
+    var percent = this.positionAlongRoute / this.routeDuration
+
+    var pointIndex = Math.floor(percent * (this.points.length - 1));
+    this.setPosition(this.points[pointIndex]);
+
+    if(this.positionAlongRoute >= this.routeDuration)
+      this.setRoute(null);
+
+    this.positionAlongRoute ++;
     //from a route, getPath() returns an array (MVCArray, call .getArray() to get the js array) of LatLng coordinates.  There should be a single function to get the latlng position along a route with a provided float 0.0-1.0
 
     //if at (or as near as possible?) drop-off point for a passenger,
@@ -91,15 +102,22 @@ Car.prototype.stops = function(){
 
 Car.prototype.calculateRoute = function(){
   var closureCar = this;
-  this.geo.getDirections(this.position, this.passengers, function(data){
+  this.geo.getDirections(this, this.passengers, function(data){
     closureCar.setRoute(data);
   });
 };
 
 Car.prototype.setRoute = function(route){
   this.route = route;
-  console.log('route', route);
-  console.log('route path', this.geo.getPathFromRoute(route.routes[0]));
+  console.log('route', this.route);
+  this.positionAlongRoute = 0;
+  if(route){
+    this.routeDuration = route.routes[0].legs[0].duration.value;
+    this.points = this.geo.getPathFromRoute(route.routes[0]).getArray();
+  }else{
+    this.routeDuration = 0;
+    this.points = null;
+  }
 };
 
 Car.prototype.removePassenger = function(passenger){

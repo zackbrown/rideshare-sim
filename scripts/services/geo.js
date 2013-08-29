@@ -75,12 +75,12 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
   }
 
   var self = {
-    getDirections: function(start, passengers, successCallback, errorCallback){
+    getDirections: function(car, passengers, successCallback, errorCallback){
 
-      var waypointsAndDestination = _getWaypointsAndDestinationFromStartAndPassengers(start, passengers);
+      var waypointsAndDestination = _getWaypointsAndDestinationFromStartAndPassengers(car.position, passengers);
 
       var request = {
-        origin:start,
+        origin: car.position,
         waypoints: waypointsAndDestination.waypoints,
         destination: waypointsAndDestination.destination,
         travelMode: google.maps.TravelMode.DRIVING,
@@ -102,6 +102,8 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
         strokeColor: '#FF0000',
         strokeWeight: 3
       });
+
+      //TODO:  Remove / add points to steps of legs such that they have a number of points proportional to the duration of that step
 
       var legs = route.legs;
       for (var i=0;i<legs.length;i++) {

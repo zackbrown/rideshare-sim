@@ -34,6 +34,8 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
 
     for(var i = 0; i < config.STARTING_PASSENGERS; i++)
       $scope.addPassenger();
+
+    setInterval($scope.tick, 10);
   }
 
   $scope.selectedCar = null;
@@ -124,7 +126,6 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
       $scope.cars[i].tick();
     for(var i = 0; i < $scope.passengers.length; i++)
       $scope.passengers[i].tick();
-
   };
 
   $scope.initialize();
