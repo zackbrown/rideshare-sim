@@ -11,46 +11,127 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
   var directionsService = new google.maps.DirectionsService();
   var retryQueue = [];
 
-  var self = {
-    getDirections: function(start, destinations, successCallback, errorCallback){
+  var _removeRetryFromQueue = function(retry){
+    for(var i = 0; i < retryQueue.length; i++){
+      if(retryQueue[i].id == retry.id)
+        retryQueue[i] = null;
+    }
+    retryQueue = _.compact(retryQueue);
+  }
 
-      var waypoints = []
-      for(var i = 0; i < destinations.length; i++){
-        waypoints.push({ //new google.maps.DirectionsWaypoint
-          location: destinations[i],
-          stopover: false
-        });
+  var _getWaypointsAndDestinationFromStartAndPassengers = function(start, passengers){
+    //naive, greedy implementation; find next stop based on simple euclidean geo distance
+    //until all passenger x (position, destination) are gone, loop:
+    //grab the nearest
+
+    var passengerState = {} //null: not used yet; 1: pickup used; 2: dropoff used
+    var getAvailableStops = function(){
+      var ret = [];
+      for(var i = 0; i < passengers.length; i++){
+        var passenger = passengers[i];
+        if(!passengerState[passenger.id])
+          ret.push({passenger: passenger, position: passenger.position})
+        else if (passengerState[passenger.id] == 1)
+          ret.push({passenger: passenger, position: passenger.destination})
       }
+      return ret;
+    };
+
+    var incrementPassengerState = function(passenger){
+      if(!passengerState[passenger.id])
+        passengerState[passenger.id] = 1;
+      else if(passengerState[passenger.id] == 1)
+        passengerState[passenger.id] = 2;
+      else
+        throw "internal error:  should not increment passenger state beyond 2";
+    }
+
+    var lastStop = start;
+    var stops = []
+    var waypoints = [];
+    while((stops = getAvailableStops()).length){
+      var closestStop = null; // {passenger, position}
+      var shortestDistance = null;
+      for(var i = 0; i < stops.length; i++){
+        console.log('last stop', lastStop);
+        console.log('stops', stops);
+        var distance = self.euclideanDistance(lastStop, stops[i].position);
+        if(!shortestDistance || distance < shortestDistance){
+          shortestDistance = distance;
+          closestStop = stops[i]
+        }
+      }
+      waypoints.push({location: closestStop.position, stopover: false});
+      incrementPassengerState(closestStop.passenger);
+    }
+
+    var destination = waypoints[waypoints.length - 1].location;
+    waypoints = waypoints.slice(0, waypoints.length - 1);
+
+    return {
+      waypoints: waypoints,
+      destination: destination
+    }
+  }
+
+  var self = {
+    getDirections: function(start, passengers, successCallback, errorCallback){
+
+      var waypointsAndDestination = _getWaypointsAndDestinationFromStartAndPassengers(start, passengers);
 
       var request = {
         origin:start,
-        waypoints: waypoints,
-        destination: destinations[0],
+        waypoints: waypointsAndDestination.waypoints,
+        destination: waypointsAndDestination.destination,
         travelMode: google.maps.TravelMode.DRIVING,
-        optimizeWaypoints: true
+        optimizeWaypoints: false
       };
       directionsService.route(request, function(result, status) {
         if (status == google.maps.DirectionsStatus.OK) {
           successCallback(result);
         }else{
           console.warn('Google Directions Error! Will retry' + status, result);
-          retryQueue.push({request: request, successCallback: successCallback});
+          retryQueue.push({id: util.generateUUID(), request: request, successCallback: successCallback});
         }
       });
     },
 
+    getPathFromRoute: function(route){
+      var polyline = new google.maps.Polyline({
+        path: [],
+        strokeColor: '#FF0000',
+        strokeWeight: 3
+      });
+
+      var legs = route.legs;
+      for (var i=0;i<legs.length;i++) {
+        var steps = legs[i].steps;
+        for (var j=0;j<steps.length;j++) {
+          var nextSegment = steps[j].path;
+          for (var k=0;k<nextSegment.length;k++) {
+            polyline.getPath().push(nextSegment[k]);
+          }
+        }
+      }
+      return polyline.getPath();
+
+    },
+
     retryDirections: function(){
       for(var i = 0; i < retryQueue.length; i++){
-        directionsService.route(requestQueue[i].request, function(result, status) {
+        var retry = retryQueue[i];
+        directionsService.route(retry.request, function(result, status) {
           if (status == google.maps.DirectionsStatus.OK) {
-            requestQueue[i].successCallback(result);
-            requestQueue[i] = null;
+            retry.successCallback(result);
+            _removeRetryFromQueue(retry);
+          }else if(status == google.maps.DirectionsStatus.ZERO_RESULTS){
+            console.warn('Google Directions Error:  No results.  Will not retry.');
+            _removeRetryFromQueue(retry);
           }else{
             console.warn('Google Directions Retry Error -- Will continue to retry' + status, result);
           }
         });
       }
-      retryQueue = _.compact(retryQueue); //remove requests once they've nulled themselves out
     },
 
     getCarStartingPosition: function(){
@@ -87,6 +168,6 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
     }
   };
 
-  setInterval(self.retryDirections, 250);
+  setInterval(self.retryDirections, 5000);
   return self;
 }]);

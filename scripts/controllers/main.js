@@ -38,21 +38,22 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
 
   $scope.selectedCar = null;
   $scope.selectCar = function(car){
-    if($scope.selectedCar != null)
-      $scope.selectedCar.setSelect(false);
+    $scope.deselectAll();
     $scope.selectedCar = car;
     car.setSelect(true);
   }
 
-  $scope.selectPassenger = function(passenger){
-    $scope.deselectPassengers();
+  $scope.selectPassengerAndCar = function(passenger){
+    $scope.deselectAll();
     $scope.selectedPassengers = [passenger];
     passenger.setSelect(true);
+    //if(passenger.car)
+      //$scope.selectCar(passenger.car);
   };
 
   $scope.selectedPassengers = [];
   $scope.selectPassengers = function(passengers){
-    $scope.deselectPassengers();
+    $scope.deselectAll();
 
     $scope.selectedPassengers = passengers;
     for(var i = 0; i < passengers.length; i++)
@@ -65,10 +66,16 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
         $scope.selectedPassengers[i].setSelect(false);
   };
 
+  $scope.deselectAll = function(){
+    $scope.deselectPassengers();
+
+    for (var i = 0; i < $scope.cars.length; i++)
+      $scope.cars[i].setSelect(false);
+
+    $scope.selectedCar = null;
+  };
+
   $scope.addCar = function(){
-    //create a car object complete with marker
-    //give the car an initial position
-    //add car to list of cars
     var newCar = new Car($scope, geo, geo.getCarStartingPosition(), config.MAX_PASSENGERS);
     $scope.cars.push(newCar);
   };
@@ -81,7 +88,7 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
   };
 
   $scope.removeCar = function(car){
-
+    throw 'unimplemented';
   };
 
   $scope.assignRideToPassenger = function(passenger){

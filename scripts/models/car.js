@@ -26,7 +26,8 @@ function Car($scope, geo, initialPosition, maxPassengers){
     preserveViewport: true,
     draggable: false,
     suppressMarkers: true,
-    suppressInfoWindows: true
+    suppressInfoWindows: true,
+    optimizeWaypoints: true
   }
 
   self.directionsDisplay = new google.maps.DirectionsRenderer(self.directionsOptions);
@@ -85,13 +86,15 @@ Car.prototype.stops = function(){
 
 Car.prototype.calculateRoute = function(){
   var closureCar = this;
-  this.geo.getDirections(this.position, this.stops(), function(data){
+  this.geo.getDirections(this.position, this.passengers, function(data){
     closureCar.setRoute(data);
   });
 };
 
 Car.prototype.setRoute = function(route){
   this.route = route;
+  console.log('route', route);
+  console.log('route path', this.geo.getPathFromRoute(route.routes[0]));
 };
 
 Car.prototype.removePassenger = function(passenger){

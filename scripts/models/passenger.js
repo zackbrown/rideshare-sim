@@ -16,9 +16,13 @@ function Passenger($scope, initialPosition, destination){
     icon: self.ICON_URL
   })
 
+  self.destinationMarker = new google.maps.Marker({
+    position: destination,
+  })
+
   google.maps.event.addListener(self.marker, 'click', function(){
     //click behavior here
-    self.$scope.selectPassenger(self);
+    self.$scope.selectPassengerAndCar(self);
   });
 
   self.state = Passenger.STATE.AWAITING_RIDE;
@@ -37,8 +41,10 @@ Passenger.prototype.setCar = function(car){
 Passenger.prototype.setSelect = function(selected){
   if(selected){
     this.marker.setIcon(this.SELECTED_ICON_URL);
+    this.destinationMarker.setMap(this.$scope.map);
   }else{
     this.marker.setIcon(this.ICON_URL);
+    this.destinationMarker.setMap(null);
   }
 };
 
