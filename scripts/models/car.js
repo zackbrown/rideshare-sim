@@ -12,6 +12,7 @@ function Car($scope, geo, initialPosition, maxPassengers){
   self.points = null;
   self.routeDuration = 0;
   self.positionAlongRoute = 0;
+  self.pointsForPassengers = {};
   self.maxPassengers = maxPassengers;
   self.passengers = [];
   self.selected = false;
@@ -77,6 +78,16 @@ Car.prototype.tick = function(){
     var pointIndex = Math.floor(percent * (this.points.length - 1));
     this.setPosition(this.points[pointIndex]);
 
+    if(this.pointsForPassengers[this.position.lat() + '|' + this.position.lng()]){
+      var point = this.pointsForPassengers[this.position.lat() + '|' + this.position.lng()]
+      console.log('magic point!', point);
+      if(point.type == 'PICK_UP')
+        point.passenger.pickUp();
+      else if(point.type == 'DROP_OFF')
+        point.passenger.dropOff();
+
+    }
+
     if(this.positionAlongRoute >= this.routeDuration)
       this.setRoute(null);
 
@@ -111,9 +122,35 @@ Car.prototype.setRoute = function(route){
   this.route = route;
   console.log('route', this.route);
   this.positionAlongRoute = 0;
+  this.pointsForPassengers = {};
   if(route){
     this.routeDuration = route.routes[0].legs[0].duration.value;
     this.points = this.geo.getPathFromRoute(route.routes[0]).getArray();
+
+    //find points along route nearest to each passenger; designate those the drop-off points for that passenger
+    for(var i = 0; i < this.passengers.length; i++){
+      var shortestDistance = null;
+      var closestPoint = null;
+      for(var j = 0; j < this.points.length; j++){
+        var distance = this.geo.euclideanDistance(this.passengers[i].position, this.points[j]);
+        if(!shortestDistance || distance < shortestDistance){
+          shortestDistance = distance;
+          closestPoint = this.points[j]
+        }
+      }
+      this.pointsForPassengers[closestPoint.lat() + '|' + closestPoint.lng()] = {type: 'PICK_UP', passenger: this.passengers[i]};
+
+      shortestDistance = null;
+      closestPoint = null;
+      for(var j = 0; j < this.points.length; j++){
+        var distance = this.geo.euclideanDistance(this.passengers[i].destination, this.points[j]);
+        if(!shortestDistance || distance < shortestDistance){
+          shortestDistance = distance;
+          closestPoint = this.points[j];
+        }
+      }
+      this.pointsForPassengers[closestPoint.lat() + '|' + closestPoint.lng()] = {type: 'DROP_OFF', passenger: this.passengers[i]};
+    }
   }else{
     this.routeDuration = 0;
     this.points = null;

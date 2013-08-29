@@ -53,8 +53,6 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
       var closestStop = null; // {passenger, position}
       var shortestDistance = null;
       for(var i = 0; i < stops.length; i++){
-        console.log('last stop', lastStop);
-        console.log('stops', stops);
         var distance = self.euclideanDistance(lastStop, stops[i].position);
         if(!shortestDistance || distance < shortestDistance){
           shortestDistance = distance;
