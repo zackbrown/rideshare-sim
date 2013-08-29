@@ -43,7 +43,7 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
     car.setSelect(true);
   }
 
-  $scope.selectPassengerAndCar = function(passenger){
+  $scope.selectPassenger = function(passenger){
     $scope.deselectAll();
     $scope.selectedPassengers = [passenger];
     passenger.setSelect(true);
@@ -53,7 +53,7 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
 
   $scope.selectedPassengers = [];
   $scope.selectPassengers = function(passengers){
-    $scope.deselectAll();
+    $scope.deselectPassengers();
 
     $scope.selectedPassengers = passengers;
     for(var i = 0; i < passengers.length; i++)
@@ -67,12 +67,12 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
   };
 
   $scope.deselectAll = function(){
+    if($scope.selectedCar){
+      $scope.selectedCar.setSelect(false);
+      $scope.selectedCar = null;
+    }
+
     $scope.deselectPassengers();
-
-    for (var i = 0; i < $scope.cars.length; i++)
-      $scope.cars[i].setSelect(false);
-
-    $scope.selectedCar = null;
   };
 
   $scope.addCar = function(){
@@ -115,7 +115,6 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
 
     passenger.setCar(selectedCar);
     selectedCar.addPassenger(passenger);
-
   };
 
   $scope.initialize();

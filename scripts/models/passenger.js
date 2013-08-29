@@ -22,7 +22,7 @@ function Passenger($scope, initialPosition, destination){
 
   google.maps.event.addListener(self.marker, 'click', function(){
     //click behavior here
-    self.$scope.selectPassengerAndCar(self);
+    self.$scope.selectPassenger(self);
   });
 
   self.state = Passenger.STATE.AWAITING_RIDE;

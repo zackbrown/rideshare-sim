@@ -49,6 +49,7 @@ Car.prototype.setPosition = function(position){
 }
 
 Car.prototype.setSelect = function(selected){
+  console.log('setting car selected: ' + selected);
   if(selected){
     this.marker.setIcon(this.SELECTED_ICON_URL);
     if(this.passengers)
