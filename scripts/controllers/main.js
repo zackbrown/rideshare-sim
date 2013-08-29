@@ -117,5 +117,15 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
     selectedCar.addPassenger(passenger);
   };
 
+  $scope.tick = function(){
+    //TODO:  add new passengers on occasion
+
+    for(var i = 0; i < $scope.cars.length; i++)
+      $scope.cars[i].tick();
+    for(var i = 0; i < $scope.passengers.length; i++)
+      $scope.passengers[i].tick();
+
+  };
+
   $scope.initialize();
 });

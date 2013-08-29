@@ -71,6 +71,10 @@ Car.prototype.tick = function(){
   //update position along route
   if(this.route){
     //from a route, getPath() returns an array (MVCArray, call .getArray() to get the js array) of LatLng coordinates.  There should be a single function to get the latlng position along a route with a provided float 0.0-1.0
+
+    //if at (or as near as possible?) drop-off point for a passenger,
+    //drop off that passenger
+
   }//else just wait (TODO:  move the car toward an area with higher density fares when it has no current fare)
 }
 
