@@ -3,7 +3,8 @@ function Passenger($scope, initialPosition, destination){
 
   self.ICON_URL = 'img/passenger-black.png';
   self.SELECTED_ICON_URL = 'img/passenger-pink.png';
-  self.TICKS_TO_LIVE = 100;
+  self.TICKS_TO_LIVE_AFTER_DROPPED_OFF = 100;
+  self.TICKS_TO_LIVE_WHILE_AWAITING_ASSIGNMENT = 1000;
 
   self.$scope = $scope;
   self.id = UUID.generate();
@@ -94,8 +95,12 @@ Passenger.prototype.tick = function(){
       this.destinationMarker.setMap(this.$scope.map);
     }
     this.deathTicks++;
-    if(this.deathTicks > this.TICKS_TO_LIVE)
+    if(this.deathTicks > this.TICKS_TO_LIVE_AFTER_DROPPED_OFF)
       this.$scope.removePassenger(this);
+  }else if(this.state == Passenger.STATE.UNASSIGNED){
+    this.deathTicks ++;
+    if(this.deathTicks > this.TICKS_TO_LIVE_WHILE_AWAITING_ASSIGNMENT)
+      $scope.removePassenger(this);
   }
 };
 

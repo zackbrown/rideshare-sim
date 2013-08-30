@@ -1,12 +1,12 @@
 'use strict';
 
 //TODO:
-// Tick cars along routes
-// Assign cars simple (1-passenger) routes
-// Support compound (multi-passenger) routes
 // Create controls for numbers of cars, frequency of passenger requests, tick speed
-// Parameterize max passengers to compare
 // Track passenger wait times
+// Track car transit times per route; aggregate interesting stats
+// Export stats as .json; make downloadable
+// Show infowindow on car click for car-specific details
+//
 
 RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, util) {
 
@@ -50,8 +50,6 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
     $scope.deselectAll();
     $scope.selectedPassengers = [passenger];
     passenger.setSelect(true);
-    //if(passenger.car)
-      //$scope.selectCar(passenger.car);
   };
 
   $scope.selectedPassengers = [];
@@ -96,10 +94,8 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
 
   $scope.removePassenger = function(passenger){
     $scope.passengers = passenger.removeFromArray($scope.passengers);
-    console.log('passenger car before cleanup', passenger.car);
     if(passenger.car)
       passenger.car.passengers = passenger.removeFromArray(passenger.car.passengers)
-    console.log('passenger car after cleanup', passenger.car);
 
     passenger.cleanUp();
   };
@@ -122,12 +118,12 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
 
     window.car = selectedCar;
 
-    //TODO:  Handle case where all cars are full!
-    if(!selectedCar)
-      throw 'unimplemented:  handle case when no cars are available';
-
-    passenger.setCar(selectedCar);
-    selectedCar.addPassenger(passenger);
+    if(selectedCar){
+      passenger.setCar(selectedCar);
+      selectedCar.addPassenger(passenger);
+    }else{
+      //no car is available
+    }
   };
 
   $scope.assignRidesAndCalculateRoutes = function(){
@@ -145,8 +141,13 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
       routelessCars[i].calculateRoute();
   };
 
+  $scope.tickCounter = 0;
   $scope.tick = function(){
     //TODO:  add new passengers on occasion
+    $scope.tickCounter++;
+
+    if($scope.tickCounter % 300 == 0)
+      $scope.addPassenger();
 
     for(var i = 0; i < $scope.cars.length; i++)
       $scope.cars[i].tick();
