@@ -35,7 +35,8 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
     for(var i = 0; i < config.STARTING_PASSENGERS; i++)
       $scope.addPassenger();
 
-    setInterval($scope.tick, 10);
+    setInterval($scope.tick, 15);
+    setInterval($scope.assignRidesAndCalculateRoutes, 3000);
   }
 
   $scope.selectedCar = null;
@@ -93,6 +94,16 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
     throw 'unimplemented';
   };
 
+  $scope.removePassenger = function(passenger){
+    $scope.passengers = passenger.removeFromArray($scope.passengers);
+    console.log('passenger car before cleanup', passenger.car);
+    if(passenger.car)
+      passenger.car.passengers = passenger.removeFromArray(passenger.car.passengers)
+    console.log('passenger car after cleanup', passenger.car);
+
+    passenger.cleanUp();
+  };
+
   $scope.assignRideToPassenger = function(passenger){
     //find nearest waypoint or car position for all cars with available seats
     var availableCars = _.filter($scope.cars, function(car){
@@ -117,6 +128,21 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
 
     passenger.setCar(selectedCar);
     selectedCar.addPassenger(passenger);
+  };
+
+  $scope.assignRidesAndCalculateRoutes = function(){
+    var unassignedPassengers = _.filter($scope.passengers, function(p){
+      return p.state == Passenger.STATE.UNASSIGNED;
+    })
+    for(var i = 0; i < unassignedPassengers.length; i++)
+      $scope.assignRideToPassenger(unassignedPassengers[i]);
+
+    var routelessCars = _.filter($scope.cars, function(c){
+      return !c.calculatingRoute && !c.route;
+    });
+
+    for(var i = 0; i < routelessCars.length; i++)
+      routelessCars[i].calculateRoute();
   };
 
   $scope.tick = function(){

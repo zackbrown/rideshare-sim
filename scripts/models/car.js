@@ -9,6 +9,7 @@ function Car($scope, geo, initialPosition, maxPassengers){
   self.geo = geo;
   self.position = initialPosition;
   self.route = null;
+  self.calculatingRoute = false;
   self.points = null;
   self.routeDuration = 0;
   self.positionAlongRoute = 0;
@@ -80,12 +81,10 @@ Car.prototype.tick = function(){
 
     if(this.pointsForPassengers[this.position.lat() + '|' + this.position.lng()]){
       var point = this.pointsForPassengers[this.position.lat() + '|' + this.position.lng()]
-      console.log('magic point!', point);
-      if(point.type == 'PICK_UP')
+      if(point.type == 'PICK_UP' && point.passenger.state == Passenger.STATE.AWAITING_RIDE)
         point.passenger.pickUp();
-      else if(point.type == 'DROP_OFF')
+      else if(point.type == 'DROP_OFF' && point.passenger.state == Passenger.STATE.IN_CAR)
         point.passenger.dropOff();
-
     }
 
     if(this.positionAlongRoute >= this.routeDuration)
@@ -113,14 +112,19 @@ Car.prototype.stops = function(){
 
 Car.prototype.calculateRoute = function(){
   var closureCar = this;
-  this.geo.getDirections(this, this.passengers, function(data){
-    closureCar.setRoute(data);
-  });
+  this.calculatingRoute = true;
+  this.geo.getDirections(this,
+    function(data){
+      closureCar.calculatingRoute = false;
+      closureCar.setRoute(data);
+    },
+    function(status){
+      closureCar.calculatingRoute = false;
+    });
 };
 
 Car.prototype.setRoute = function(route){
   this.route = route;
-  console.log('route', this.route);
   this.positionAlongRoute = 0;
   this.pointsForPassengers = {};
   if(route){

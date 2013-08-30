@@ -3,6 +3,7 @@ function Passenger($scope, initialPosition, destination){
 
   self.ICON_URL = 'img/passenger-black.png';
   self.SELECTED_ICON_URL = 'img/passenger-pink.png';
+  self.TICKS_TO_LIVE = 100;
 
   self.$scope = $scope;
   self.id = UUID.generate();
@@ -25,13 +26,15 @@ function Passenger($scope, initialPosition, destination){
     self.$scope.selectPassenger(self);
   });
 
-  self.state = Passenger.STATE.AWAITING_RIDE;
+  self.state = Passenger.STATE.UNASSIGNED;
 }
 
 Passenger.STATE = {
+  UNASSIGNED: 'UNASSIGNED',
   AWAITING_RIDE: 'AWAITING_RIDE',
   IN_CAR: 'IN_CAR',
-  DROPPED_OFF: 'DROPPED_OFF'
+  DROPPED_OFF: 'DROPPED_OFF',
+  DELETED: 'DELETED'
 };
 
 Passenger.prototype.setPosition = function(position){
@@ -48,11 +51,22 @@ Passenger.prototype.dropOff = function(){
 };
 
 Passenger.prototype.setCar = function(car){
+  this.state = Passenger.STATE.AWAITING_RIDE;
   this.car = car;
 };
 
+//Will remove all nulls from array
+//Assumes array contains only Passenger objects
+Passenger.prototype.removeFromArray = function(array){
+  for(var i = 0; i < array.length; i++){
+    if(array[i].id == this.id)
+      array[i] = null;
+  }
+  return _.compact(array);
+};
+
 Passenger.prototype.setSelect = function(selected){
-  if(this.state == Passenger.STATE.AWAITING_RIDE || this.state == Passenger.STATE.DROPPED_OFF){
+  if(this.state != Passenger.STATE.IN_CAR){
     if(selected){
       this.marker.setIcon(this.SELECTED_ICON_URL);
       this.destinationMarker.setMap(this.$scope.map);
@@ -63,14 +77,25 @@ Passenger.prototype.setSelect = function(selected){
   }
 };
 
+Passenger.prototype.cleanUp = function(){
+  this.marker.setMap(null);
+  this.destinationMarker.setMap(null);
+  this.state == Passenger.STATE.DELETED;
+}
+
 Passenger.prototype.tick = function(){
   //update position along route
   if(this.state == Passenger.STATE.IN_CAR){
     this.marker.setMap(null);
   }else if(this.state == Passenger.STATE.DROPPED_OFF){
-    this.setPosition(this.destination);
-    this.marker.setMap(this.$scope.map);
-    this.marker.setIcon(this.SELECTED_ICON_URL);
+    if(this.position.lat() != this.destination.lat() && this.position.lng() != this.destination.lng()){
+      this.deathTicks = 0;
+      this.setPosition(this.destination);
+      this.destinationMarker.setMap(this.$scope.map);
+    }
+    this.deathTicks++;
+    if(this.deathTicks > this.TICKS_TO_LIVE)
+      this.$scope.removePassenger(this);
   }
 };
 

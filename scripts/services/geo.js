@@ -73,9 +73,9 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
   }
 
   var self = {
-    getDirections: function(car, passengers, successCallback, errorCallback){
+    getDirections: function(car, successCallback, errorCallback){
 
-      var waypointsAndDestination = _getWaypointsAndDestinationFromStartAndPassengers(car.position, passengers);
+      var waypointsAndDestination = _getWaypointsAndDestinationFromStartAndPassengers(car.position, car.passengers);
 
       var request = {
         origin: car.position,
@@ -88,8 +88,9 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
         if (status == google.maps.DirectionsStatus.OK) {
           successCallback(result);
         }else{
-          console.warn('Google Directions Error! Will retry' + status, result);
-          retryQueue.push({id: util.generateUUID(), request: request, successCallback: successCallback});
+          console.warn('Google Directions Error! ' + status, result);
+          if(errorCallback)
+            errorCallback(status);
         }
       });
     },
@@ -120,7 +121,7 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
     retryDirections: function(){
       for(var i = 0; i < retryQueue.length; i++){
         var retry = retryQueue[i];
-        directionsService.route(retry.request, function(result, status) {
+        directionsService.route(_.extend(retry.request, {origin: retry.car.position}), function(result, status) {
           if (status == google.maps.DirectionsStatus.OK) {
             retry.successCallback(result);
             _removeRetryFromQueue(retry);
@@ -168,6 +169,6 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
     }
   };
 
-  setInterval(self.retryDirections, 5000);
+  //setInterval(self.retryDirections, 5000);
   return self;
 }]);
