@@ -1,7 +1,8 @@
 'use strict';
 
 //TODO:
-// Create controls for numbers of cars, frequency of passenger requests, tick speed
+// Use distinct routes per passenger [stopOver: true]
+// Create controls for numbers of cars, frequency of passenger requests, tick speed, pause
 // Track passenger wait times
 // Track car transit times per route; aggregate interesting stats
 // Export stats as .json; make downloadable
@@ -9,7 +10,7 @@
 // Animate marker events
 // Reshuffle optimize passengers that are not part of a car's immediate route
 
-RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, util) {
+RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, util, app) {
 
   $scope.initialize = function(){
     var mapOptions = {
@@ -132,33 +133,36 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
   };
 
   $scope.assignRidesAndCalculateRoutes = function(){
-    var unassignedPassengers = _.filter($scope.passengers, function(p){
-      return p.state == Passenger.STATE.UNASSIGNED;
-    })
-    for(var i = 0; i < unassignedPassengers.length; i++)
-      $scope.assignRideToPassenger(unassignedPassengers[i]);
+    if(!app.paused()){
+      var unassignedPassengers = _.filter($scope.passengers, function(p){
+        return p.state == Passenger.STATE.UNASSIGNED;
+      })
+      for(var i = 0; i < unassignedPassengers.length; i++)
+        $scope.assignRideToPassenger(unassignedPassengers[i]);
 
-    var routelessCars = _.filter($scope.cars, function(c){
-        return !c.calculatingRoute && !c.route;
-      }
-    );
+      var routelessCars = _.filter($scope.cars, function(c){
+          return !c.calculatingRoute && !c.route;
+        }
+      );
 
-    for(var i = 0; i < routelessCars.length; i++)
-      routelessCars[i].calculateRoute();
+      for(var i = 0; i < routelessCars.length; i++)
+        routelessCars[i].calculateRoute();
+    }
   };
 
   $scope.tickCounter = 0;
   $scope.tick = function(){
-    //TODO:  add new passengers on occasion
-    $scope.tickCounter++;
+    if(!app.paused()){
+      $scope.tickCounter++;
 
-    if($scope.tickCounter % config.PASSENGER_REQUEST_PERIOD == 0)
-      $scope.addPassenger();
+      if($scope.tickCounter % config.PASSENGER_REQUEST_PERIOD == 0)
+        $scope.addPassenger();
 
-    for(var i = 0; i < $scope.cars.length; i++)
-      $scope.cars[i].tick();
-    for(var i = 0; i < $scope.passengers.length; i++)
-      $scope.passengers[i].tick();
+      for(var i = 0; i < $scope.cars.length; i++)
+        $scope.cars[i].tick();
+      for(var i = 0; i < $scope.passengers.length; i++)
+        $scope.passengers[i].tick();
+    }
   };
 
   $scope.initialize();

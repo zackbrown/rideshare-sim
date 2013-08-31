@@ -78,7 +78,7 @@ Passenger.prototype.bounceDestination = function(){
   var stopBounce = function(){
     self.destinationMarker.setAnimation(null);
   }
-  setTimeout(stopBounce, 1400);
+  setTimeout(stopBounce, 1400); //1400 is roughly two bounces
 };
 
 Passenger.prototype.setSelect = function(selected){
