@@ -93,6 +93,7 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
 
   $scope.removePassenger = function(passenger){
     $scope.passengers = passenger.removeFromArray($scope.passengers);
+    $scope.selectedPassengers = passenger.removeFromArray($scope.selectedPassengers);
     if(passenger.car)
       passenger.car.passengers = passenger.removeFromArray(passenger.car.passengers)
 

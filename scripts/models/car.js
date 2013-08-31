@@ -79,6 +79,11 @@ Car.prototype.tick = function(){
     var pointIndex = Math.floor(percent * (this.points.length - 1));
     if(this.points)
       this.setPosition(this.points[pointIndex]);
+    if(!this.position){
+      console.log('null position!', this.points)
+      console.log('null position! index', pointIndex)
+      console.log('null position! percent', percent)
+    }
 
     if(this.pointsForPassengers[this.position.lat() + '|' + this.position.lng()]){
       var point = this.pointsForPassengers[this.position.lat() + '|' + this.position.lng()]
