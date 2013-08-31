@@ -23,10 +23,17 @@ function Passenger($scope, initialPosition, destination){
   })
 
   google.maps.event.addListener(self.marker, 'click', function(){
+    console.log('click passenger');
+    self.bounceDestination();
     self.$scope.selectPassenger(self);
   });
 
   self.state = Passenger.STATE.UNASSIGNED;
+
+  self.counters = {};
+  for(var state in Passenger.STATE){
+    self.counters[state] = 0;
+  }
 }
 
 Passenger.STATE = {
@@ -65,6 +72,15 @@ Passenger.prototype.removeFromArray = function(array){
   return _.compact(array);
 };
 
+Passenger.prototype.bounceDestination = function(){
+  this.destinationMarker.setAnimation(google.maps.Animation.BOUNCE);
+  var self = this;
+  var stopBounce = function(){
+    self.destinationMarker.setAnimation(null);
+  }
+  setTimeout(stopBounce, 1400);
+};
+
 Passenger.prototype.setSelect = function(selected){
   if(this.state != Passenger.STATE.IN_CAR){
     if(selected){
@@ -78,6 +94,7 @@ Passenger.prototype.setSelect = function(selected){
 };
 
 Passenger.prototype.cleanUp = function(){
+  console.log('final counter stats', this.counters);
   this.marker.setMap(null);
   this.destinationMarker.setMap(null);
   this.state == Passenger.STATE.DELETED;
@@ -85,6 +102,8 @@ Passenger.prototype.cleanUp = function(){
 
 Passenger.prototype.tick = function(){
   //update position along route
+  this.counters[this.state] ++;
+
   if(this.state == Passenger.STATE.IN_CAR){
     this.marker.setMap(null);
   }else if(this.state == Passenger.STATE.DROPPED_OFF){

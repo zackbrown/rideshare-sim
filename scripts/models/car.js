@@ -37,6 +37,7 @@ function Car($scope, geo, initialPosition, maxPassengers){
   self.directionsDisplay = new google.maps.DirectionsRenderer(self.directionsOptions);
 
   google.maps.event.addListener(self.marker, 'click', function(){
+    console.log('car click');
     self.$scope.selectCar(self);
   });
 }
@@ -53,7 +54,6 @@ Car.prototype.setPosition = function(position){
 }
 
 Car.prototype.setSelect = function(selected){
-  console.log('setting car selected: ' + selected);
   if(selected){
     this.marker.setIcon(this.SELECTED_ICON_URL);
     if(this.passengers)
@@ -77,15 +77,10 @@ Car.prototype.tick = function(){
     var percent = this.positionAlongRoute / this.routeDuration
 
     var pointIndex = Math.floor(percent * (this.points.length - 1));
-    if(this.points)
+    if(this.points && this.points[pointIndex])
       this.setPosition(this.points[pointIndex]);
-    if(!this.position){
-      console.log('null position!', this.points)
-      console.log('null position! index', pointIndex)
-      console.log('null position! percent', percent)
-    }
 
-    if(this.pointsForPassengers[this.position.lat() + '|' + this.position.lng()]){
+    if(this.position && this.pointsForPassengers[this.position.lat() + '|' + this.position.lng()]){
       var point = this.pointsForPassengers[this.position.lat() + '|' + this.position.lng()]
       if(point.type == 'PICK_UP' && point.passenger.state == Passenger.STATE.AWAITING_RIDE)
         point.passenger.pickUp();

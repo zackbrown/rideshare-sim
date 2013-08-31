@@ -46,9 +46,14 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
   }
 
   $scope.selectPassenger = function(passenger){
-    $scope.deselectAll();
-    $scope.selectedPassengers = [passenger];
-    passenger.setSelect(true);
+    if(passenger.car){
+      console.log('pass car', passenger.car);
+      $scope.selectCar(passenger.car);
+    }else{
+      $scope.deselectAll();
+      $scope.selectedPassengers = [passenger];
+      passenger.setSelect(true);
+    }
   };
 
   $scope.selectedPassengers = [];
