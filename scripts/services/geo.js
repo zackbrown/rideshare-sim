@@ -24,7 +24,7 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
     //until all passenger x (position, destination) are gone, loop:
     //grab the nearest
 
-    var passengerState = {} //null: not used yet; 1: pickup used; 2: dropoff used
+    var passengerState = {}; //null: not used yet; 1: pickup used; 2: dropoff used
     var getAvailableStops = function(){
       var ret = [];
       for(var i = 0; i < passengers.length; i++){
@@ -62,6 +62,9 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
       waypoints.push({location: closestStop.position, stopover: false});
       incrementPassengerState(closestStop.passenger);
     }
+
+    if(!waypoints.length)
+      console.log('waypoints null!', car)
 
     var destination = waypoints[waypoints.length - 1].location;
     waypoints = waypoints.slice(0, waypoints.length - 1);

@@ -23,7 +23,6 @@ function Passenger($scope, initialPosition, destination){
   })
 
   google.maps.event.addListener(self.marker, 'click', function(){
-    //click behavior here
     self.$scope.selectPassenger(self);
   });
 

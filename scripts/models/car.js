@@ -77,7 +77,8 @@ Car.prototype.tick = function(){
     var percent = this.positionAlongRoute / this.routeDuration
 
     var pointIndex = Math.floor(percent * (this.points.length - 1));
-    this.setPosition(this.points[pointIndex]);
+    if(this.points)
+      this.setPosition(this.points[pointIndex]);
 
     if(this.pointsForPassengers[this.position.lat() + '|' + this.position.lng()]){
       var point = this.pointsForPassengers[this.position.lat() + '|' + this.position.lng()]
@@ -111,16 +112,18 @@ Car.prototype.stops = function(){
 };
 
 Car.prototype.calculateRoute = function(){
-  var closureCar = this;
-  this.calculatingRoute = true;
-  this.geo.getDirections(this,
-    function(data){
-      closureCar.calculatingRoute = false;
-      closureCar.setRoute(data);
-    },
-    function(status){
-      closureCar.calculatingRoute = false;
-    });
+  if(this.passengers && this.passengers.length){
+    var closureCar = this;
+    this.calculatingRoute = true;
+    this.geo.getDirections(this,
+      function(data){
+        closureCar.calculatingRoute = false;
+        closureCar.setRoute(data);
+      },
+      function(status){
+        closureCar.calculatingRoute = false;
+      });
+  }
 };
 
 Car.prototype.setRoute = function(route){

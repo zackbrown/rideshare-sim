@@ -6,11 +6,10 @@
 // Track car transit times per route; aggregate interesting stats
 // Export stats as .json; make downloadable
 // Show infowindow on car click for car-specific details
-//
+// Animate marker events
+// Reshuffle optimize passengers that are not part of a car's immediate route
 
 RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, util) {
-
-  //$scope.googleMapsAPIKey = config.googleMapsAPIKey;
 
   $scope.initialize = function(){
     var mapOptions = {
@@ -35,8 +34,8 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
     for(var i = 0; i < config.STARTING_PASSENGERS; i++)
       $scope.addPassenger();
 
-    setInterval($scope.tick, 15);
-    setInterval($scope.assignRidesAndCalculateRoutes, 3000);
+    setInterval($scope.tick, config.TICK_PERIOD);
+    setInterval($scope.assignRidesAndCalculateRoutes, config.ASSIGN_RIDES_PERIOD);
   }
 
   $scope.selectedCar = null;
@@ -134,8 +133,9 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
       $scope.assignRideToPassenger(unassignedPassengers[i]);
 
     var routelessCars = _.filter($scope.cars, function(c){
-      return !c.calculatingRoute && !c.route;
-    });
+        return !c.calculatingRoute && !c.route;
+      }
+    );
 
     for(var i = 0; i < routelessCars.length; i++)
       routelessCars[i].calculateRoute();
@@ -146,7 +146,7 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
     //TODO:  add new passengers on occasion
     $scope.tickCounter++;
 
-    if($scope.tickCounter % 300 == 0)
+    if($scope.tickCounter % config.PASSENGER_REQUEST_PERIOD == 0)
       $scope.addPassenger();
 
     for(var i = 0; i < $scope.cars.length; i++)
