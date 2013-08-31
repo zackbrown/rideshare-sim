@@ -1,3 +1,3 @@
 <div class="options-content">
-  <button ng-click="togglePause()">{{togglePauseText()}}</button>
+  <button class="btn btn-monowidth" ng-class="{'btn-danger': !paused(), 'btn-success': paused()}" ng-click="togglePause()">{{togglePauseText()}}</button>
 </div>

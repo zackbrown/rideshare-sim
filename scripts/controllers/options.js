@@ -14,9 +14,12 @@ RideshareSimApp.controller('OptionsCtrl', function($scope, app) {
   $scope.togglePause = function(){
     app.togglePause();
   }
-
-  $scope.togglePauseText = function(){
-    return (app.paused() ? 'Unpause' : 'Pause');
+  $scope.paused = function(){
+    return app.paused();
   }
+  $scope.togglePauseText = function(){
+    return ($scope.paused() ? 'Resume' : 'Pause');
+  }
+
 
 });
