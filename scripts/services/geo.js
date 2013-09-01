@@ -105,9 +105,6 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
         strokeWeight: 3
       });
 
-      //TODO:  Remove / add points to steps of legs such that they have a number of points proportional to the duration of that step
-      //Bonus:  interpolate the new points between the existing points rather than simply duplicating
-      console.log('route', route);
       var legs = route.legs;
 
       //First, find the maximum ratio of points:duration
@@ -120,13 +117,28 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
         }
       }
 
+      var _interpolate = function(point1, point2, offset){
+        //edge-case at end of array
+        if(!point2)
+          return point1;
+
+        return new google.maps.LatLng(
+          point1.lat() + ((point2.lat() - point1.lat()) * offset),
+          point1.lng() + ((point2.lng() - point1.lng()) * offset)
+        );
+      }
+
       //Ensure that each segment matches that ratio as closely as possible
-      var matchSegmentToNewRatio = function(segment, currentRatio, newRatio){
-        //current number of points * (newRatio / currentRatio) is how many points we need in our return array
-        var targetLength = segment.length * (newRatio / currentRatio);
-        var retSegment = []//_.clone(segment);
+      var _matchSegmentToNewRatio = function(segment, currentRatio, newRatio){
+        var retSegment = [];
+        if(isNaN(currentRatio))
+          throw 'currentRatio must be a number';
+        if(isNaN(newRatio))
+          throw 'currentRatio must be a number';
+        if(newRatio == 0)
+          throw 'currentRatio cannot be zero';
         for(var i = 0; i < segment.length; i += currentRatio / newRatio){
-          retSegment.push(segment[Math.floor(i)]);
+          retSegment.push(_interpolate(segment[Math.floor(i)], segment[Math.ceil(i)], i - Math.floor(i)));
         }
         return retSegment;
       }
@@ -134,14 +146,14 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
       for (var i=0;i<legs.length;i++) {
         var steps = legs[i].steps;
         for (var j=0;j<steps.length;j++) {
-          var nextSegment = matchSegmentToNewRatio(steps[j].path, steps[j].path.length / steps[j].duration.value, maxRatio);
+          var nextSegment = _matchSegmentToNewRatio(steps[j].path, steps[j].path.length / steps[j].duration.value, maxRatio);
           for (var k=0;k<nextSegment.length;k++) {
             polyline.getPath().push(nextSegment[k]);
           }
         }
       }
-      return polyline.getPath();
 
+      return polyline.getPath();
     },
 
     retryDirections: function(){

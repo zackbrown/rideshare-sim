@@ -66,7 +66,7 @@ Passenger.prototype.setCar = function(car){
 //Assumes array contains only Passenger objects
 Passenger.prototype.removeFromArray = function(array){
   for(var i = 0; i < array.length; i++){
-    if(array[i].id == this.id)
+    if(array[i] && array[i].id == this.id)
       array[i] = null;
   }
   return _.compact(array);
