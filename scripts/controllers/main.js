@@ -2,8 +2,9 @@
 
 //TODO:
 // Use distinct routes per passenger [stopOver: true]
-// Fill the points in a car's route with extra points to make the legs have numbers of points proportional to their durations
 // Create controls for numbers of cars, frequency of passenger requests, tick speed
+// Expand passenger creation bounds
+// Make passengers ditch if their ride doesn't show up after a threshold
 // Track passenger distance
 // Track car transit times per route; aggregate interesting stats
 // Export stats as .json; make downloadable
@@ -141,7 +142,8 @@ RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, u
       for(var i = 0; i < unassignedPassengers.length; i++)
         $scope.assignRideToPassenger(unassignedPassengers[i]);
 
-      var routelessCars = _.filter($scope.cars, function(c){
+      var routelessCars = _.filter($scope.cars,
+        function(c){
           return !c.calculatingRoute && !c.route;
         }
       );
