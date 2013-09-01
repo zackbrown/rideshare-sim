@@ -2,8 +2,9 @@
 
 //TODO:
 // Use distinct routes per passenger [stopOver: true]
-// Create controls for numbers of cars, frequency of passenger requests, tick speed, pause
-// Track passenger wait times
+// Fill the points in a car's route with extra points to make the legs have numbers of points proportional to their durations
+// Create controls for numbers of cars, frequency of passenger requests, tick speed
+// Track passenger distance
 // Track car transit times per route; aggregate interesting stats
 // Export stats as .json; make downloadable
 // Show infowindow on car click for car-specific details

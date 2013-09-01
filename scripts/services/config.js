@@ -6,7 +6,7 @@ RideshareSimApp.factory('config', function(){
     MAX_PASSENGERS: 4,
     STARTING_CARS: 10,
     STARTING_PASSENGERS: 10,
-    TICK_PERIOD: 10, //ms; real-time
+    TICK_PERIOD: 30, //ms; real-time
     ASSIGN_RIDES_PERIOD: 3000, //ms; real-time
     PASSENGER_REQUEST_PERIOD: 90 //ticks; sim-time
   }

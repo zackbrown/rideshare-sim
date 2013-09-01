@@ -106,12 +106,35 @@ RideshareSimApp.factory('geo', ['$http', 'config', 'util', function($http, confi
       });
 
       //TODO:  Remove / add points to steps of legs such that they have a number of points proportional to the duration of that step
-
+      //Bonus:  interpolate the new points between the existing points rather than simply duplicating
+      console.log('route', route);
       var legs = route.legs;
+
+      //First, find the maximum ratio of points:duration
+      var maxRatio = 0;
       for (var i=0;i<legs.length;i++) {
         var steps = legs[i].steps;
         for (var j=0;j<steps.length;j++) {
           var nextSegment = steps[j].path;
+          maxRatio = Math.max(nextSegment.length / steps[j].duration.value, maxRatio);
+        }
+      }
+
+      //Ensure that each segment matches that ratio as closely as possible
+      var matchSegmentToNewRatio = function(segment, currentRatio, newRatio){
+        //current number of points * (newRatio / currentRatio) is how many points we need in our return array
+        var targetLength = segment.length * (newRatio / currentRatio);
+        var retSegment = []//_.clone(segment);
+        for(var i = 0; i < segment.length; i += currentRatio / newRatio){
+          retSegment.push(segment[Math.floor(i)]);
+        }
+        return retSegment;
+      }
+
+      for (var i=0;i<legs.length;i++) {
+        var steps = legs[i].steps;
+        for (var j=0;j<steps.length;j++) {
+          var nextSegment = matchSegmentToNewRatio(steps[j].path, steps[j].path.length / steps[j].duration.value, maxRatio);
           for (var k=0;k<nextSegment.length;k++) {
             polyline.getPath().push(nextSegment[k]);
           }
