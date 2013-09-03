@@ -11,6 +11,8 @@
 // Show infowindow on car click for car-specific details
 // Make better markers for passengers (Lyft-esque pins?)
 // Reshuffle optimize passengers that are not part of a car's immediate route
+// --> Instead of assigning all of the passengers to a ride up front, assign a new passenger or destination after a stop/pick-up has been made.
+// --> Problem:  UX for customer waiting for pickup.  How do we show them how long they should expect to wait?
 // Add wait times for when passengers are picked up
 // Create separate routing models?  Modular functions for ticking, etc.  Pass functions around
 
