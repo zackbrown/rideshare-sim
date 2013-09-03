@@ -5,12 +5,14 @@
 // Create controls for numbers of cars, frequency of passenger requests, tick speed
 // Expand passenger creation bounds
 // Make passengers ditch if their ride doesn't show up after a threshold
-// Track passenger distance
+// Track passenger distance (actual distance traveled, not just the distance of their original route.  This especially needs to consider cases where routes change mid-transit
 // Track car transit times per route; aggregate interesting stats
 // Export stats as .json; make downloadable
 // Show infowindow on car click for car-specific details
-// Animate marker events
+// Make better markers for passengers (Lyft-esque pins?)
 // Reshuffle optimize passengers that are not part of a car's immediate route
+// Add wait times for when passengers are picked up
+// Create separate routing models?  Modular functions for ticking, etc.  Pass functions around
 
 RideshareSimApp.controller('MainCtrl', function($scope, $timeout, config, geo, util, app) {
 
