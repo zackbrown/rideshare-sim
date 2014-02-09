@@ -1,7 +1,7 @@
-Ride-Share Simulator
+Rideshare Simulator
 =============
 
-Ride-sharing simulator built on the Google Maps API and AngularJS
+Ridesharing simulator built on the Google Maps API and AngularJS
 
 The goal of this project is to answer the questions:
 
@@ -11,4 +11,4 @@ The goal of this project is to answer the questions:
   - What would the expected additional wait time be?  How would this vary by  *n* and *m*, where *n* is the maximum number of passengers per ride and *m*  is the maximum threshold of expected detour time to pick up a new  passenger in an already occupied car vs. dispatching a new car?
 
 
-The methodology is to create a simple simulator with naive routing and passenger-location density models.  If the naive estimations (which error toward inefficiency) prove viable, this would suggest a business model worth investigating.
+The methodology is to create a simple simulator with naive routing and passenger-location density models.  Distances, wait times, and fares can be generated using varying models (number of passengers per car, rate of ride requests, etc.)  If the naive estimations (which error toward inefficiency) prove viable, this would suggest a business model worth investigating.
